@@ -4,10 +4,13 @@
   "description": "A secure proxy to call the Gemini and TTS APIs without exposing the API key.",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "@google/genai": "^0.15.0"
+    "@google/genai": "^0.15.0",
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5"
   }
-
 }
