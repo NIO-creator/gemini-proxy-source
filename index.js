@@ -1,15 +1,27 @@
 /**
- * A secure proxy Cloud Function to handle Gemini and TTS API calls.
- * This prevents the API key from being exposed in client-side code (like GitHub Pages).
- * * NOTE: The GEMINI_API_KEY is retrieved securely from the Cloud Run environment variables.
+ * A secure proxy Node.js server to handle Gemini and TTS API calls on Cloud Run.
+ * This prevents the API key from being exposed in client-side code.
+ * NOTE: The server MUST listen on the port provided by the $PORT environment variable.
  */
-
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors'); // Essential for client-side access
 const { GoogleGenAI } = require('@google/genai');
 
+// --- Server Setup ---
+const app = express();
+// Cloud Run injects the PORT environment variable. We MUST use it.
+const PORT = process.env.PORT || 8080; 
+
+// Apply middleware
+app.use(cors()); // Allow all origins for proxy access
+app.use(bodyParser.json());
+
+// --- API Configuration ---
 const apiKey = process.env.GEMINI_API_KEY;
 
 if (!apiKey) {
-    console.error("GEMINI_API_KEY environment variable is not set. Deployment failed.");
+    console.error("GEMINI_API_KEY environment variable is not set. The service will fail.");
 }
 const ai = new GoogleGenAI({ apiKey });
 
@@ -17,20 +29,21 @@ const TEXT_MODEL = "gemini-2.5-flash-preview-09-2025";
 const TTS_MODEL = "gemini-2.5-flash-preview-tts";
 const TTS_VOICE = "Kore"; 
 
-exports.processGeminiRequest = async (req, res) => {
-    // Set CORS headers for all responses (mandatory for client-side apps)
-    res.set('Access-Control-Allow-Origin', '*'); 
+// --- Health Check / Root Endpoint ---
+app.get('/', (req, res) => {
+    res.status(200).send('Gemini Proxy Service is Running.');
+});
 
+// --- Core Proxy Logic Endpoint ---
+app.post('/process', async (req, res) => {
+    // Note: CORS headers are handled by the 'cors' middleware, 
+    // but the options handling is still useful for verification.
     if (req.method === 'OPTIONS') {
-        res.set('Access-Control-Allow-Methods', 'POST');
-        res.set('Access-Control-Allow-Headers', 'Content-Type');
-        res.set('Access-Control-Max-Age', '3600');
-        res.status(204).send('');
-        return;
+        return res.status(204).send();
     }
 
-    if (req.method !== 'POST' || !req.body.prompt) {
-        return res.status(400).send({ error: 'Requires a POST request with a "prompt" in the body.' });
+    if (!req.body.prompt) {
+        return res.status(400).send({ error: 'Requires a "prompt" in the body.' });
     }
 
     if (!apiKey) {
@@ -90,4 +103,9 @@ exports.processGeminiRequest = async (req, res) => {
         console.error("Gemini TTS API Error:", error);
         res.status(200).send({ text: textResponse, audioData: null, error: 'TTS failed' });
     }
-};
+});
+
+// --- Start the Server ---
+app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+});
