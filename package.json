@@ -2,9 +2,10 @@
   "name": "gemini-tts-proxy-function",
   "version": "1.0.0",
   "description": "A secure proxy to call the Gemini and TTS APIs without exposing the API key.",
-  "main": "index.js",
+  "main": "index.cjs",
+  "type": "commonjs",  <--- ADD THIS LINE
   "scripts": {
-    "start": "node index.js",
+    "start": "node index.cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
