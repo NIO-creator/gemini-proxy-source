@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A secure proxy to call the Gemini and TTS APIs without exposing the API key.",
   "main": "index.cjs",
-  "type": "commonjs",  <--- ADD THIS LINE
+  "type": "commonjs",
   "scripts": {
     "start": "node index.cjs",
     "test": "echo \"Error: no test specified\" && exit 1"
