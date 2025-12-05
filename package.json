@@ -1,0 +1,12 @@
+{
+  "name": "gemini-tts-proxy-function",
+  "version": "1.0.0",
+  "description": "A secure proxy to call the Gemini and TTS APIs without exposing the API key.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@google/genai": "^0.15.0"
+  }
+}
